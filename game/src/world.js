@@ -373,7 +373,7 @@ function createOcean(preset) {
         float dist = clamp((shoreX - vWorld.x) / 90.0, 0.0, 1.0);
         vec3 col = mix(shallow, deep, smoothstep(0.0, 1.0, dist));
         float fres = pow(1.0 - max(dot(n, v), 0.0), 3.0);
-        col = mix(col, skyTint, fres*0.55);
+        col = mix(col, skyTint, fres*0.3);
         vec3 r = reflect(-v, n);
         float spec = pow(max(dot(r, sunDir), 0.0), 140.0);
         col += sunColor * spec * 2.2;
@@ -564,7 +564,8 @@ export function buildCoastalCity({ seed = 1, preset = 'golden' } = {}) {
   // Ground plane, sand, ocean, sky.
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1600), new THREE.MeshStandardMaterial({ color: 0xcfc6b6, roughness: 0.95 }));
   ground.rotation.x = -Math.PI / 2;
-  ground.position.set(WORLD.cityMaxX / 2 + 300, -0.02, 0);
+  // Starts under the promenade so it never covers the sand or the ocean beyond it.
+  ground.position.set(WORLD.beachInnerX - 6 + 700, -0.02, 0);
   ground.receiveShadow = true;
   scene.add(ground);
 
@@ -708,7 +709,7 @@ export function buildCoastalCity({ seed = 1, preset = 'golden' } = {}) {
     const [a, b] = rng.pick(umbrellaPalette);
     beachParts.push(...umbrellaGeometry(rng.range(WORLD.oceanEdgeX + 12, WORLD.beachInnerX - 6), z, a, b, rng.range(-0.12, 0.12)));
   }
-  for (const tz of [-150, -10, -330, 60, -460]) scene.add(lifeguardTower(WORLD.oceanEdgeX + 22, tz));
+  for (const tz of [-84, -10, -330, 60, -460]) scene.add(lifeguardTower(WORLD.oceanEdgeX + 22, tz));
   const netPost = 0xf4f1ea;
   beachParts.push(placed(tinted(new THREE.CylinderGeometry(0.06, 0.06, 2.5), netPost), -48, 1.25, -205));
   beachParts.push(placed(tinted(new THREE.CylinderGeometry(0.06, 0.06, 2.5), netPost), -48, 1.25, -197));
@@ -992,14 +993,25 @@ function buildMarketBoardwalk(scene, rng, props, colliders) {
       if (rng() < 0.5) crates.push(placed(tinted(new THREE.CylinderGeometry(0.5, 0.5, 1.2, 10), 0x2f6bff), x + facing * 3.2, 1.2, z - 3.6));
       si += 1;
     }
-    // String lights zig-zagging across the aisle, with paper lanterns.
+    // Festoon string lights strung across the aisle on a dark wire, small paper lanterns between.
     const lanternColors = [0xff4fb8, 0x46e0ff, 0xffcf4a, 0xff7a59];
+    let prev = null;
     for (let k = 0; k <= 16; k += 1) {
       const t = k / 16;
       const x = x0 + 9 + t * (x1 - x0 - 18);
-      const sag = Math.sin(t * Math.PI) * 1.1;
-      bulbParts.push(placed(tinted(new THREE.SphereGeometry(0.12, 6, 4), k % 2 ? 0xfff0b0 : 0xff9ad5), x, 5.6 - sag, z + 7));
-      if (k % 4 === 2) lanternParts.push(placed(tinted(new THREE.SphereGeometry(0.3, 10, 8), lanternColors[(k + si) % 4]), x, 5.0 - sag, z + 7));
+      const y = 6.4 - Math.sin(t * Math.PI) * 0.9;
+      const pt = new THREE.Vector3(x, y, z + 7);
+      if (prev) {
+        const len = pt.distanceTo(prev);
+        props.push(placed(tinted(new THREE.BoxGeometry(len, 0.03, 0.03), 0x15151c), (x + prev.x) / 2, (y + prev.y) / 2, z + 7, 0, 0, Math.atan2(y - prev.y, x - prev.x)));
+      }
+      prev = pt;
+      bulbParts.push(placed(tinted(new THREE.SphereGeometry(0.09, 6, 4), k % 2 ? 0xfff0b0 : 0xff9ad5), x, y - 0.1, z + 7));
+      if (k % 4 === 2) {
+        const lantern = new THREE.SphereGeometry(0.13, 10, 8);
+        lantern.scale(1, 1.25, 1);
+        lanternParts.push(placed(tinted(lantern, lanternColors[(k + si) % 4]), x, y - 0.32, z + 7));
+      }
     }
   }
   for (const c of crates) props.push(c);

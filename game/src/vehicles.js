@@ -57,7 +57,48 @@ function sculptedExtrude(points, width, bevel, shapeWidth, arches = []) {
     pos.setZ(i, pos.getZ(i) * shapeWidth(x, y));
   }
   geo.rotateY(Math.PI / 2);
-  geo.computeVertexNormals();
+  return creasedNormals(geo, 0.85);
+}
+
+/**
+ * Smooth-shade a non-indexed geometry: every vertex takes the area-weighted average normal of the
+ * faces that share its position and lie within `crease` radians of its own face, so bevels and
+ * fenders read as one glossy surface while hard profile corners stay crisp.
+ */
+export function creasedNormals(geo, crease = 0.85) {
+  if (geo.index) geo = geo.toNonIndexed();
+  const pos = geo.attributes.position;
+  const tris = pos.count / 3;
+  const faceN = new Float32Array(tris * 3);
+  const unitN = new Float32Array(tris * 3);
+  const a = new THREE.Vector3(); const b = new THREE.Vector3(); const c = new THREE.Vector3();
+  for (let t = 0; t < tris; t += 1) {
+    a.fromBufferAttribute(pos, t * 3); b.fromBufferAttribute(pos, t * 3 + 1); c.fromBufferAttribute(pos, t * 3 + 2);
+    c.sub(b); a.sub(b); c.cross(a);
+    faceN.set([c.x, c.y, c.z], t * 3);
+    c.normalize();
+    unitN.set([c.x, c.y, c.z], t * 3);
+  }
+  const key = (i) => `${Math.round(pos.getX(i) * 1e4)},${Math.round(pos.getY(i) * 1e4)},${Math.round(pos.getZ(i) * 1e4)}`;
+  const shared = new Map();
+  for (let i = 0; i < pos.count; i += 1) {
+    const k = key(i);
+    if (!shared.has(k)) shared.set(k, []);
+    shared.get(k).push(Math.floor(i / 3));
+  }
+  const cosC = Math.cos(crease);
+  const normals = new Float32Array(pos.count * 3);
+  for (let i = 0; i < pos.count; i += 1) {
+    const t = Math.floor(i / 3);
+    let nx = 0; let ny = 0; let nz = 0;
+    for (const o of shared.get(key(i))) {
+      if (unitN[t * 3] * unitN[o * 3] + unitN[t * 3 + 1] * unitN[o * 3 + 1] + unitN[t * 3 + 2] * unitN[o * 3 + 2] < cosC) continue;
+      nx += faceN[o * 3]; ny += faceN[o * 3 + 1]; nz += faceN[o * 3 + 2];
+    }
+    const l = Math.hypot(nx, ny, nz) || 1;
+    normals[i * 3] = nx / l; normals[i * 3 + 1] = ny / l; normals[i * 3 + 2] = nz / l;
+  }
+  geo.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
   return geo;
 }
 
@@ -144,10 +185,10 @@ function buildWheel(radius, width, side, spinning) {
   return pivot;
 }
 
-function paintMaterial(color, { metal = 0.55, rough = 0.26 } = {}) {
-  return new THREE.MeshPhysicalMaterial({ color, metalness: metal, roughness: rough, clearcoat: 1, clearcoatRoughness: 0.06, envMapIntensity: 1.2 });
+function paintMaterial(color, { metal = 0.5, rough = 0.2 } = {}) {
+  return new THREE.MeshPhysicalMaterial({ color, metalness: metal, roughness: rough, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.45, flatShading: false });
 }
-const glassMaterial = () => new THREE.MeshPhysicalMaterial({ color: 0x0d1620, metalness: 0.4, roughness: 0.05, clearcoat: 1, envMapIntensity: 1.6 });
+const glassMaterial = () => new THREE.MeshPhysicalMaterial({ color: 0x070c14, metalness: 0.55, roughness: 0.04, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 1.9, flatShading: false });
 const trimMaterial = () => new THREE.MeshStandardMaterial({ color: 0x111317, roughness: 0.5, metalness: 0.3 });
 
 function addLamp(group, w, h, d, color, x, y, z, glowSize = 0) {
@@ -180,7 +221,8 @@ export function buildSportsCar({ color = VEHICLES.solara.color, spinning = false
   const lowerPts = lower.map((p) => { const q = [p[0], p[1]]; if (p[2]) q.arch = p[2]; return q; });
   const shell = new THREE.Mesh(sculptedExtrude(lowerPts, 1.96, 0.13, fenderWidth([-1.42, 1.4], 0.98, 2.36, -2.36), arches), paint);
   shell.castShadow = true;
-  shell.receiveShadow = true;
+  // Smooth-shaded paint does not self-shadow: avoids terminator acne bands across the glossy body.
+  shell.receiveShadow = false;
   body.add(shell);
   const cabinPts = [[0.86, 0.86], [0.02, 1.26], [-0.7, 1.29], [-1.25, 1.17], [-1.85, 0.97], [-1.2, 0.9], [0.2, 0.86]];
   const cabin = new THREE.Mesh(sculptedExtrude(cabinPts, 1.5, 0.1, (x, y) => 1 - Math.max(0, y - 0.9) * 0.28), glassMaterial());
@@ -205,11 +247,11 @@ export function buildSportsCar({ color = VEHICLES.solara.color, spinning = false
     body.add(mirror);
   }
   const diffuser = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.2, 0.3), new THREE.MeshStandardMaterial({ map: getCarbonTexture(), roughness: 0.35, metalness: 0.3 }));
-  diffuser.position.set(0, 0.28, 2.28);
+  diffuser.position.set(0, 0.28, 2.32);
   body.add(diffuser);
   for (let i = -3; i <= 3; i += 1) {
     const fin = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.18, 0.3), trim);
-    fin.position.set(i * 0.2, 0.28, 2.36);
+    fin.position.set(i * 0.2, 0.28, 2.43);
     body.add(fin);
   }
   const splitter = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.05, 0.3), new THREE.MeshStandardMaterial({ map: getCarbonTexture(), roughness: 0.35 }));
@@ -230,15 +272,25 @@ export function buildSportsCar({ color = VEHICLES.solara.color, spinning = false
     strut.position.set(s * 0.5, 1.07, 2.04);
     body.add(strut);
   }
-  // Lights: full-width tail bar with two hex lamps, LED headlight strips, plate.
-  const tail = addLamp(body, 1.5, 0.05, 0.04, 0xff1f3a, 0, 0.8, 2.355, 0);
+  // Lights: full-width LED tail bar with two hex lamps, LED headlight strips, plate. The bevelled
+  // shell bulges ~0.1 m past its profile, so lamps sit on that outer skin and their glows float
+  // clear of it (a glow sprite that cuts into the paint shows up as hard-edged bands).
+  const tail = addLamp(body, 1.64, 0.075, 0.08, 0xff2d4d, 0, 0.8, 2.47, 0);
   const tails = [tail];
+  for (const bx of [-0.5, 0, 0.5]) {
+    const g = glowSprite('#ff2a44', 0.6, 0.3);
+    g.position.set(bx, 0.8, 2.85);
+    body.add(g);
+  }
   for (const s of [-1, 1]) {
-    tails.push(addLamp(body, 0.34, 0.11, 0.05, 0xff2340, s * 0.66, 0.77, 2.34, 1.1));
-    addLamp(body, 0.4, 0.05, 0.05, 0xf4fbff, s * 0.62, 0.55, -2.33, 0.9);
+    const hex = addLamp(body, 0.34, 0.12, 0.08, 0xff2340, s * 0.66, 0.78, 2.48, 0.7);
+    hex.userData.glow.position.z = 2.9;
+    tails.push(hex);
+    const head = addLamp(body, 0.42, 0.06, 0.05, 0xf4fbff, s * 0.62, 0.56, -2.43, 0.5);
+    head.userData.glow.position.z = -2.85;
   }
   const plate = new THREE.Mesh(new THREE.PlaneGeometry(0.52, 0.13), new THREE.MeshBasicMaterial({ map: plateTexture('SOL·GT3'), toneMapped: false }));
-  plate.position.set(0, 0.5, 2.37);
+  plate.position.set(0, 0.5, 2.465);
   body.add(plate);
   // Quad exhausts and nitro flames.
   const chrome = new THREE.MeshStandardMaterial({ color: 0xd9dee8, metalness: 1, roughness: 0.15 });
@@ -247,11 +299,11 @@ export function buildSportsCar({ color = VEHICLES.solara.color, spinning = false
     for (const o of [0.36, 0.52]) {
       const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.2, 10), chrome);
       pipe.rotation.x = Math.PI / 2;
-      pipe.position.set(s * o, 0.33, 2.38);
+      pipe.position.set(s * o, 0.33, 2.44);
       body.add(pipe);
     }
     const flame = buildNitroFlame();
-    flame.position.set(s * 0.44, 0.33, 2.48);
+    flame.position.set(s * 0.44, 0.33, 2.56);
     flame.visible = nitro;
     body.add(flame);
     flames.push(flame);

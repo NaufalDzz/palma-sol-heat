@@ -9,6 +9,8 @@ coastal city of Art Deco hotels, palm-lined boulevards, a neon night market and 
 cars, outrun the Palma Sol Police Department and their Air-1 helicopter, tune your Solara GT at Chrome &
 Torque Customs, and work through a ten-job story with a three-person crew.
 
+Built for the make.fun bounty **[gta6-01](https://make.fun/bounty/gta6-01)**.
+
 ![Golden-hour chase up Ocean Drive](screenshots/1-chase.jpg)
 
 ## Features

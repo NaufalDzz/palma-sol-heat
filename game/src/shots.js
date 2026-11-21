@@ -47,6 +47,13 @@ function settleParticles(particles, seconds) {
   for (let t = 0; t < seconds; t += 1 / 30) particles.update(1 / 30);
 }
 
+/** A warm pool of light on a deck or pavement at height y. */
+function deckPool(scene, x, y, z, color, size, opacity) {
+  const m = roadReflection(scene, x, z, color, size, size, opacity);
+  m.position.y = y + 0.02;
+  return m;
+}
+
 /** A flat additive glow on the road: light from tail lamps, nitro and lightbars reflected on asphalt. */
 function roadReflection(scene, x, z, color, w, l, opacity = 0.5) {
   const m = new THREE.Mesh(new THREE.PlaneGeometry(w, l), new THREE.MeshBasicMaterial({ map: glowTexture(color), transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
@@ -105,13 +112,13 @@ function stageChase(ctx, seed) {
   pursuit.callsign = 'GULL-17';
   dispatch.units.find((u) => u.tactic === 'ROADBLOCK').callsign = 'HAMMER-22';
   const heli = spawnHelicopter(dispatch, -6, -92);
-  heli.model.position.set(-9, 22, -84);
+  heli.model.position.set(-12, 19, -88);
   heli.model.rotation.set(0.12, 0.35, -0.08);
   updateHelicopter(heli.model, t);
   heli.model.userData.cone.material.uniforms.strength.value = 1.15;
-  heli.model.userData.spot.intensity = 160;
+  heli.model.userData.spot.intensity = 95;
   aimSearchlight(heli.model, new THREE.Vector3(v.x - 0.2, 0, v.z + 0.6), scene);
-  heli.model.userData.pool.material.opacity = 0.22;
+  heli.model.userData.pool.material.opacity = 0.12;
   for (const u of dispatch.units) {
     updateLightbar(u.vehicle.model, t);
     u.distance = Math.hypot(u.vehicle.x - v.x, u.vehicle.z - v.z);
@@ -153,10 +160,15 @@ function stageChase(ctx, seed) {
     syncVehicleModel(s);
     scene.add(car);
   }
+  // A civilian moped weaving along the right-hand lane edge, rider aboard.
   const scooter = buildScooter();
-  scooter.position.set(9.6, 0, -66);
-  scooter.rotation.y = 0.1;
+  scooter.position.set(6.2, 0, -63);
+  scooter.rotation.y = 0.06;
   scene.add(scooter);
+  const scooter2 = buildScooter({ color: 0x2fd3c6 });
+  scooter2.position.set(-9.2, 0, -96);
+  scooter2.rotation.y = Math.PI;
+  scene.add(scooter2);
 
   // Pedestrians on the right sidewalk watching the chase.
   const watchers = [[13.2, -52, 0xff7a59], [14.6, -58, 0x2fd3c6], [13.6, -75, 0xffc23a], [15.2, -80, 0xffffff], [12.8, -96, 0xb58cff]];
@@ -166,6 +178,15 @@ function stageChase(ctx, seed) {
     p.rotation.y = Math.PI / 2 + 0.4;
     scene.add(p);
   }
+  // Sunlit strollers on the beachfront promenade, mid-stride.
+  const strollers = [[-13.4, -44, 0xffc23a, 0xf0c7a2, 0], [-15.2, -52, 0xff4a3d, 0x8a5a3c, Math.PI], [-12.8, -61, 0xffffff, 0xe2a982, 0], [-16.6, -68, 0x2fd3c6, 0xc98e62, Math.PI], [-14.2, -78, 0xff6f91, 0x5e3b26, 0], [-19.6, -58, 0x4f8bff, 0xf0c7a2, Math.PI], [-21.4, -47, 0xffe3a3, 0xc98e62, 0]];
+  strollers.forEach(([x, z, shirt, skin, h], k) => {
+    const p = buildHumanoid({ skin, shirt, pants: k % 2 ? 0xf4f1ea : 0x3a5f8a });
+    p.position.set(x, 0.16, z);
+    p.rotation.y = h + 0.2;
+    p.userData.animateWalk?.(k * 1.7, 0.6);
+    scene.add(p);
+  });
 
   world.setFocus(v.x, v.z - 26);
   world.update(t, 0);
@@ -173,8 +194,8 @@ function stageChase(ctx, seed) {
   // Camera: low, tight 3/4 rear-quarter.
   const cam = ctx.camera;
   cam.fov = 56;
-  cam.position.set(v.x + 2.6, 2.05, v.z + 8.4);
-  cam.lookAt(v.x - 2.4, 1.9, v.z - 20);
+  cam.position.set(v.x + 2.7, 4.05, v.z + 9.9);
+  cam.lookAt(v.x - 7.4, -0.9, v.z - 18);
   cam.updateProjectionMatrix();
 
   startMission(game.campaign, 9);
@@ -237,10 +258,10 @@ function stageShootout(ctx, seed) {
 
   // Enemies: cartel gunmen behind crates and barrels, PSPD officers by the wreck.
   const enemies = [
-    { x: -47.5, z: 238, shirt: 0x1b1b22, pants: 0x3a2a1a, crouch: true, fire: true },
-    { x: -38.2, z: 232, shirt: 0xd42a3a, pants: 0x1b1b22, crouch: false, fire: true },
-    { x: -44.6, z: 224, shirt: 0x1d3b7a, pants: 0x0f1626, cap: 0x0f1626, crouch: false, fire: true },
-    { x: -50.2, z: 220, shirt: 0x1d3b7a, pants: 0x0f1626, cap: 0x0f1626, crouch: true, fire: false },
+    { x: -47.9, z: 244.5, shirt: 0xff3b4f, pants: 0x1b1b22, crouch: false, cover: true, fire: true },
+    { x: -38.9, z: 240.5, shirt: 0xf2efe6, pants: 0x3a2a1a, crouch: false, cover: true, fire: true },
+    { x: -52.6, z: 234, shirt: 0x2fd3c6, pants: 0x1b1b22, crouch: true, cover: true, fire: true },
+    { x: -37.4, z: 226, shirt: 0x3f74e0, pants: 0x0f1626, cap: 0x0f1626, crouch: false, fire: true },
     { x: -40.5, z: 241, shirt: 0x2a2a33, pants: 0x3a2a1a, crouch: true, fire: false, down: true },
   ];
   const crates = new THREE.MeshStandardMaterial({ color: 0x8a6a48, roughness: 0.8 });
@@ -262,10 +283,15 @@ function stageShootout(ctx, seed) {
     }
     scene.add(m);
     if (!e.down) {
-      const cover = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.1, 1.0), crates);
-      cover.position.set(e.x + 0.3, deckY + 0.55, e.z + 1.3);
+      const ch = e.crouch ? 1.0 : 0.85;
+      const cover = new THREE.Mesh(new THREE.BoxGeometry(1.4, ch, 0.9), crates);
+      cover.position.set(e.x + 0.2, deckY + ch / 2, e.z + 1.0);
       cover.castShadow = true;
-      if (e.crouch) scene.add(cover);
+      if (e.cover) scene.add(cover);
+      // A cool rim light so every shooter reads as a silhouette against the market.
+      const rim = glowSprite('#7fd8ff', 2.6, 0.22);
+      rim.position.set(e.x, deckY + 1.1, e.z - 0.6);
+      scene.add(rim);
     }
     targets.push({ e, m });
   }
@@ -279,7 +305,7 @@ function stageShootout(ctx, seed) {
   const flashCore = glowSprite('#ffffff', 0.6, 1);
   flashCore.position.copy(muzzle);
   scene.add(flashCore);
-  const hitSpots = [[-38.0, 1.6, 232.3], [-38.6, 1.2, 233], [-37.6, 1.9, 231.5], [-45.2, 1.5, 238.8]];
+  const hitSpots = [[-38.6, 1.5, 241.4], [-39.2, 1.1, 241.5], [-47.5, 1.3, 245.6], [-52.2, 1.5, 235.2]];
   for (const [hx, hy, hz] of hitSpots) {
     spawnTracer(scene, [], muzzle.clone().add(new THREE.Vector3(0, 0, -0.05)), new THREE.Vector3(hx, hy, hz), 0xffcf5a, 99);
     const spark = glowSprite('#ffd27a', 0.9, 0.9);
@@ -297,11 +323,48 @@ function stageShootout(ctx, seed) {
     void m;
   }
   // Burning cruiser at the end of the aisle and an exploding barrel.
-  const wreck = buildBurningWreck(scene, particles, -44.5, 208, 1.2, true);
+  const wreck = buildBurningWreck(scene, particles, -42.8, 214, 1.2, true);
   wreck.model.position.y = deckY;
   particles.emitters[0].pos.y = deckY + 0.9;
-  particles.explode(new THREE.Vector3(-44.5, deckY + 1, 208), 0.6);
+  particles.emitters[0].strength = 1.6;
+  particles.addFire(new THREE.Vector3(-41.6, deckY + 1.2, 213.2), 1.1);
+  const wreckGlow = glowSprite('#ff6a1a', 12, 0.5);
+  wreckGlow.position.set(-42.8, deckY + 2, 214);
+  scene.add(wreckGlow);
+  deckPool(scene, -42.8, deckY, 215, '#ff7a2a', 14, 0.55);
   settleParticles(particles, 2.4);
+
+  // Golden lamp pools along the aisle, neon spill under the stall canopies.
+  for (const [x, z] of [[-44, 247], [-40, 234], [-47, 228], [-43, 241]]) deckPool(scene, x, deckY, z, '#ffc76a', 7, 0.32);
+  for (const [x, z, c] of [[-35.5, 236, '#46e0ff'], [-52.5, 232, '#ff4fd8'], [-35.5, 222, '#ff4fd8'], [-52.5, 246, '#46e0ff']]) deckPool(scene, x, deckY, z, c, 6, 0.35);
+  for (const [x, z] of [[-50.8, 238], [-35.6, 229], [-49.8, 221]]) {
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 4.4, 8), new THREE.MeshStandardMaterial({ color: 0x1b1d26, roughness: 0.5, metalness: 0.6 }));
+    pole.position.set(x, deckY + 2.2, z);
+    scene.add(pole);
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 8), new THREE.MeshBasicMaterial({ color: 0xffe2a6, toneMapped: false }));
+    lamp.position.set(x, deckY + 4.5, z);
+    scene.add(lamp);
+    const halo = glowSprite('#ffc76a', 2.4, 0.75);
+    halo.position.copy(lamp.position);
+    scene.add(halo);
+  }
+
+  // Fleeing market-goers, mid-sprint away from the gunfire.
+  const fleeing = [[-36.8, 245, 0xffc23a, -0.9], [-50.6, 243.5, 0xff6f91, 0.8], [-34.6, 230, 0x7dff9b, -1.2], [-52.4, 226, 0xffffff, 1.0]];
+  fleeing.forEach(([x, z, shirt, h], k) => {
+    const p = buildHumanoid({ skin: [0xf0c7a2, 0x8a5a3c, 0xc98e62, 0xe2a982][k], shirt, pants: 0x2f3b52 });
+    p.position.set(x, deckY, z);
+    p.rotation.y = h;
+    p.userData.animateWalk?.(0.9 + k, 1);
+    scene.add(p);
+  });
+  // The cab's headlights, on and glowing.
+  cab.updateMatrixWorld(true);
+  for (const sx of [-0.62, 0.62]) {
+    const hl = glowSprite('#fff4d6', 1.4, 0.95);
+    hl.position.copy(cab.localToWorld(new THREE.Vector3(sx, 0.62, -2.75)));
+    scene.add(hl);
+  }
   setWanted(dispatch, 3);
   const c1 = spawnCruiser(dispatch, -6, 228, 0.3, 'FIRING');
   const c2 = spawnCruiser(dispatch, 4, 205, -0.2, 'FLANKING');
@@ -311,13 +374,15 @@ function stageShootout(ctx, seed) {
   dispatch.inSight = true;
 
   // Night lights: lanterns, neon spill and the fire.
-  const lights = [[-44, 5, 250, 0xff4fd8, 30], [-40, 5, 236, 0x46e0ff, 30], [-44.5, 3, 209, 0xff7a2a, 60], [-35, 4, 248, 0xffcf4a, 18], [-52, 4, 240, 0x46e0ff, 22], [-41, 4, 256, 0xff4fd8, 14]];
-  lights.forEach(([x, y, z, c, i], k) => { const l = world.pointPool[k]; l.position.set(x, y, z); l.color.set(c); l.intensity = i; l.distance = 34; });
+  const lights = [[-41, 5, 252, 0xffc76a, 46], [-40, 5, 236, 0x46e0ff, 36], [-42.8, 3, 215, 0xff7a2a, 90], [-35, 4, 244, 0xffcf4a, 26], [-52, 4, 236, 0xff4fd8, 34], [-46, 4.5, 228, 0xffc76a, 34]];
+  lights.forEach(([x, y, z, c, i], k) => { const l = world.pointPool[k]; l.position.set(x, y, z); l.color.set(c); l.intensity = i; l.distance = 36; });
+  world.hemi.intensity = 0.95;
+  world.fill.intensity = 0.6;
   world.setFocus(px, pz - 20);
   world.update(3, 0);
 
   const cam = ctx.camera;
-  cam.fov = 58;
+  cam.fov = 54;
   cam.position.set(px + 1.15, deckY + 2.05, pz + 4.4);
   cam.lookAt(px - 1.6, deckY + 1.55, pz - 14);
   cam.updateProjectionMatrix();
@@ -356,7 +421,7 @@ function stageGarage(ctx, seed) {
   const career = stagedCareer();
   const garage = buildGarageScene(career);
   updateGarage(garage, 0);
-  garage.table.rotation.y = 0.15;
+  garage.table.rotation.y = -0.15;
   garage.scene.environment = createEnvironmentMap(ctx.renderer, 'night');
   ctx.hud.setVisible(false);
   showGarageUI(ctx.overlay, career, { selected: 'engine' });
@@ -374,7 +439,7 @@ function stageMap(ctx, seed) {
   cam.lookAt(0, 0, -80);
   ctx.hud.setVisible(false);
   const saves = [
-    { slot: 1, empty: false, label: 'Job 10 · Solar Eclipse', cash: 64850, completed: 9 },
+    { slot: 1, empty: false, label: 'Job 10 · Eclipse', cash: 64850, completed: 9 },
     { slot: 2, empty: false, label: 'Job 7 · Dry Dock', cash: 31200, completed: 6 },
     { slot: 3, empty: false, label: 'Job 3 · Pink Slips', cash: 8900, completed: 2 },
   ];

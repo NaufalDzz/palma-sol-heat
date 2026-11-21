@@ -6,7 +6,7 @@
 export const WORLD = {
   minZ: -560,
   maxZ: 560,
-  oceanEdgeX: -74,
+  oceanEdgeX: -56,
   beachInnerX: -24,
   promenadeX: -14,
   boulevardHalfWidth: 11,

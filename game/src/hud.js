@@ -8,8 +8,8 @@ import { CHARACTERS, CREW, DISTRICTS, MISSIONS, POLICE, WEAPONS, WORLD, district
 import { currentObjective, respectProgress } from './missions.js';
 import { getDispatchRows } from './police.js';
 
-const FONT = '"Noto Sans", "DejaVu Sans", "Helvetica Neue", Arial, sans-serif';
-const NARROW = '"Nimbus Sans Narrow", "Noto Sans", "DejaVu Sans Condensed", sans-serif';
+const FONT = "'Noto Sans', 'DejaVu Sans', 'Helvetica Neue', Arial, sans-serif";
+const NARROW = "'Nimbus Sans Narrow', 'Noto Sans', 'DejaVu Sans Condensed', sans-serif";
 
 const CSS = `
 #hud{position:fixed;inset:0;pointer-events:none;font-family:${FONT};color:#f4f6fb;-webkit-font-smoothing:antialiased;z-index:5}
@@ -17,32 +17,32 @@ const CSS = `
 .pn{background:rgba(10,14,22,.86);border:1px solid rgba(255,255,255,.14);border-radius:9px;box-shadow:0 6px 22px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(6px)}
 .lbl{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#9fb0c8}
 .pill{display:inline-block;padding:2px 8px;border-radius:5px;font-weight:900;font-size:12px;letter-spacing:.06em;color:#0a0e16}
-#tl{position:absolute;left:16px;top:14px;width:356px;display:flex;flex-direction:column;gap:9px}
-#mission{padding:11px 14px 11px;border-color:rgba(255,184,77,.55);border-left:4px solid #ffb84d}
+#tl{position:absolute;left:16px;top:12px;width:356px;display:flex;flex-direction:column;gap:6px}
+#mission{padding:8px 14px 8px;border-color:rgba(255,184,77,.55);border-left:4px solid #ffb84d}
 #mission .row{display:flex;align-items:center;gap:8px}
 #mission .job{background:#ffb84d}
 #mission .title{font:italic 900 19px ${NARROW};letter-spacing:.04em;color:#ffcf6e}
 #mission .timer{margin-left:auto;font:800 15px ${FONT};padding:2px 9px;border:1px solid #ff5d73;border-radius:6px;color:#fff;background:rgba(255,93,115,.16)}
 #mission .giver{font-size:12px;color:#c3cfdf;margin-top:3px;font-weight:600}
-#mission .obj{font-size:17px;font-weight:800;line-height:1.22;margin-top:6px;color:#fff}
-#mission .segs{display:flex;gap:5px;margin-top:8px;align-items:center}
+#mission .obj{font-size:17px;font-weight:800;line-height:1.18;margin-top:3px;color:#fff}
+#mission .segs{display:flex;gap:5px;margin-top:6px;align-items:center}
 #mission .seg{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.14)}
 #mission .seg.on{background:linear-gradient(90deg,#ff7a59,#ffcf4a)}
 #mission .seg.cur{background:linear-gradient(90deg,#ffcf4a,#fff1b8);box-shadow:0 0 8px rgba(255,207,74,.7)}
 #mission .stg{font-size:11px;font-weight:800;color:#c3cfdf;margin-left:6px;letter-spacing:.06em}
-#mission .next{font-size:12.5px;color:#d8e1ee;margin-top:7px;font-weight:600}
+#mission .next{font-size:12.5px;color:#d8e1ee;margin-top:5px;font-weight:600}
 #mission .next b{color:#5cf2b0;font-weight:900;letter-spacing:.08em;margin-right:5px}
-#dispatch{padding:9px 12px 9px;border-color:rgba(79,139,255,.55)}
-#dispatch .hd{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+#dispatch{padding:6px 12px 6px;border-color:rgba(79,139,255,.55)}
+#dispatch .hd{display:flex;align-items:center;gap:7px;margin-bottom:3px}
 #dispatch .hd .t{font-weight:900;font-size:13.5px;letter-spacing:.08em}
 #dispatch .hd .n{margin-left:auto;font-weight:900;font-size:13px;color:#ffd84f}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
-#dispatch .r{display:grid;grid-template-columns:16px 1fr 46px 104px;align-items:center;height:23px;font-size:13px;font-weight:800;border-top:1px solid rgba(255,255,255,.06)}
+#dispatch .r{display:grid;grid-template-columns:16px 1fr 46px 104px;align-items:center;height:21px;font-size:13px;font-weight:800;border-top:1px solid rgba(255,255,255,.06)}
 #dispatch .r .d{color:#9fb0c8;font-weight:700;text-align:right;padding-right:8px;font-size:12px}
 #dispatch .r .pill{text-align:center;font-size:11px;padding:2px 0}
-#dispatch .more{font-size:11.5px;color:#9fb0c8;margin-top:4px;font-weight:600}
-#bl{position:absolute;left:16px;bottom:14px;width:300px;display:flex;flex-direction:column;gap:8px}
-#district{padding:7px 12px 8px;border-left:4px solid #ff9f5a}
+#dispatch .more{font-size:11.5px;color:#9fb0c8;margin-top:2px;font-weight:600}
+#bl{position:absolute;left:16px;bottom:12px;width:300px;display:flex;flex-direction:column;gap:6px}
+#district{padding:5px 12px 6px;border-left:4px solid #ff9f5a}
 #district .n{font:italic 900 19px ${NARROW};letter-spacing:.05em}
 #district .s{font-size:12px;color:#c3cfdf;font-weight:700;margin-top:-1px}
 #district .bar{height:5px;border-radius:3px;background:rgba(255,255,255,.14);margin-top:5px;overflow:hidden}
@@ -50,7 +50,7 @@ const CSS = `
 #mmwrap{position:relative;width:196px;height:196px;margin-left:4px}
 #minimap{width:196px;height:196px;border-radius:50%;border:3px solid rgba(10,14,22,.95);box-shadow:0 0 0 2px rgba(255,159,90,.8),0 8px 24px rgba(0,0,0,.5);display:block}
 #mmN{position:absolute;left:50%;top:-6px;transform:translateX(-50%);background:#0a0e16;border:1px solid #ff9f5a;border-radius:50%;width:22px;height:22px;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center}
-#vitals{padding:8px 12px}
+#vitals{padding:6px 12px}
 .vrow{display:grid;grid-template-columns:62px 1fr 34px;align-items:center;gap:6px;height:19px;font-size:11.5px;font-weight:900;letter-spacing:.08em}
 .vbar{height:8px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}
 .vbar i{display:block;height:100%;border-radius:4px}
@@ -59,7 +59,7 @@ const CSS = `
 #respect .badge{width:26px;height:26px;border-radius:50%;background:#ffcf4a;color:#0a0e16;font-weight:900;display:flex;align-items:center;justify-content:center;font-size:14px}
 #respect .t{font-size:12px;font-weight:900;letter-spacing:.06em;color:#ffcf4a}
 #respect .p{font-size:11px;color:#9fb0c8;font-weight:700;margin-left:auto}
-#tr{position:absolute;right:16px;top:12px;width:404px;display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+#tr{position:absolute;right:16px;top:10px;width:404px;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
 #cashrow{display:flex;align-items:center;gap:10px}
 #clock{font:800 14px ${FONT};color:#e7edf6;padding:4px 9px}
 #cash{font:italic 900 34px ${NARROW};color:#7dff9b;padding:2px 14px 0;letter-spacing:.02em;border-color:rgba(125,255,155,.5);text-shadow:0 0 14px rgba(125,255,155,.35)}
@@ -77,8 +77,8 @@ const CSS = `
 .wslot .nm{font-size:8.6px;font-weight:900;letter-spacing:.04em;white-space:nowrap}
 .wslot .am{font-size:11px;font-weight:900;color:#ffcf4a}
 #wlabel{font-size:12px;font-weight:900;color:#ffcf4a;letter-spacing:.08em;padding:2px 10px}
-#crew{display:flex;flex-direction:column;gap:6px;width:268px}
-.ccard{display:grid;grid-template-columns:46px 1fr auto;align-items:center;gap:9px;padding:5px 10px 5px 5px;border-left:3px solid var(--a)}
+#crew{display:flex;flex-direction:column;gap:4px;width:268px}
+.ccard{display:grid;grid-template-columns:46px 1fr auto;align-items:center;gap:9px;padding:3px 10px 3px 4px;border-left:3px solid var(--a)}
 .ccard .pt{width:46px;height:46px;border-radius:7px;overflow:hidden;position:relative}
 .ccard .pt svg{width:46px;height:46px;display:block}
 .ccard .key{position:absolute;right:-1px;bottom:-1px;background:var(--a);color:#0a0e16;font-size:10px;font-weight:900;width:16px;height:16px;border-radius:4px 0 6px 0;display:flex;align-items:center;justify-content:center}
@@ -93,13 +93,13 @@ const CSS = `
 #dialog .sp{font:italic 900 17px ${NARROW};letter-spacing:.04em;color:#ff9f7a}
 #dialog .sp small{font:800 10.5px ${FONT};letter-spacing:.1em;color:#9fb0c8;margin-left:8px;font-style:normal}
 #dialog .tx{font-size:15px;font-weight:700;line-height:1.3;margin-top:3px;color:#fff}
-#br{position:absolute;right:16px;bottom:14px;width:300px;display:flex;flex-direction:column;gap:7px;align-items:stretch}
+#br{position:absolute;right:16px;bottom:12px;width:300px;display:flex;flex-direction:column;gap:5px;align-items:stretch}
 #radio{display:flex;align-items:center;gap:9px;padding:6px 11px;border-left:3px solid #ff9f5a}
 #radio .ic{width:24px;height:24px;border-radius:50%;background:conic-gradient(#ff9f5a,#ff4fd8,#46e0ff,#ff9f5a);display:flex;align-items:center;justify-content:center}
 #radio .ic i{width:9px;height:9px;border-radius:50%;background:#0a0e16;display:block}
 #radio .st{font-size:12.5px;font-weight:900;letter-spacing:.06em}
 #radio .tk{font-size:11.5px;color:#c3cfdf;font-weight:700}
-#speedo{padding:9px 14px 10px;border-color:rgba(70,224,255,.5)}
+#speedo{padding:6px 14px 7px;border-color:rgba(70,224,255,.5)}
 #speedo .car{display:flex;justify-content:space-between;align-items:baseline}
 #speedo .cn{font:italic 900 19px ${NARROW};letter-spacing:.05em;color:#46e0ff}
 #speedo .tune{font-size:11px;font-weight:900;color:#9fb0c8;letter-spacing:.08em}
@@ -554,18 +554,18 @@ export function showWorldMap(container, data) {
     const medal = done.get(m.id);
     const cur = m.id === career.missionIndex + 1 && !medal;
     const col = medal === 'gold' ? '#ffcf3a' : medal === 'silver' ? '#cfd8e6' : cur ? '#ff7a59' : 'rgba(255,255,255,.18)';
-    return `<div style="display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;height:25px;font-size:12.5px;font-weight:800;border-top:1px solid rgba(255,255,255,.06);${cur ? 'color:#ffb38f' : medal ? '' : 'color:#7d8aa3'}">
-      <span style="width:18px;height:18px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;color:#0a0e16;font-size:10px;font-weight:900">${medal ? '★' : m.id}</span>
-      <span>${m.id}. ${m.title}</span><span style="font-size:10.5px;letter-spacing:.08em;color:${col}">${medal ? medal.toUpperCase() : cur ? 'ACTIVE' : '$' + m.reward.toLocaleString('en-US')}</span></div>`;
+    return `<div style="display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;height:30px;font-size:14px;font-weight:900;color:#fff;border-top:1px solid rgba(255,255,255,.08);${cur ? 'color:#ffb38f' : medal ? '' : 'color:#9aa7bd'}">
+      <span style="width:20px;height:20px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;color:#0a0e16;font-size:11px;font-weight:900">${medal ? '★' : m.id}</span>
+      <span>${m.id}. ${m.title}</span><span style="font-size:12px;font-weight:900;letter-spacing:.08em;color:${col}">${medal ? medal.toUpperCase() : cur ? 'ACTIVE' : '$' + m.reward.toLocaleString('en-US')}</span></div>`;
   }).join('');
-  const crewRows = CREW.map((c) => `<div style="display:grid;grid-template-columns:40px 1fr;gap:8px;align-items:center;margin-top:6px"><div style="width:40px;height:40px;border-radius:7px;overflow:hidden">${makePortraitSVG(c, 'm' + c.key)}</div><div><div style="font:italic 900 14px ${NARROW};color:${c.accent};letter-spacing:.05em">${c.name.toUpperCase()}</div><div style="font-size:11px;color:#c3cfdf;font-weight:700">${c.role} · ${c.key} ${c.ability}</div></div></div>`).join('');
+  const crewRows = CREW.map((c) => `<div style="display:grid;grid-template-columns:40px 1fr;gap:8px;align-items:center;margin-top:6px"><div style="width:40px;height:40px;border-radius:7px;overflow:hidden">${makePortraitSVG(c, 'm' + c.key)}</div><div><div style="font:italic 900 16px ${NARROW};color:${c.accent};letter-spacing:.05em">${c.name.toUpperCase()}</div><div style="font-size:12px;color:#dbe4f0;font-weight:700">${c.role} · ${c.key} ${c.ability}</div></div></div>`).join('');
   const s = career.stats;
   const statRows = [['Distance driven', `${s.distanceKm.toFixed(1)} km`], ['Cops evaded', s.copsEvaded], ['Cars stolen', s.carsStolen], ['Races won', s.racesWon], ['Headshots', s.headshots], ['Time played', `${Math.floor(s.playMinutes / 60)}h ${s.playMinutes % 60}m`]]
-    .map(([k, v]) => `<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;height:20px;color:#c3cfdf"><span>${k}</span><b style="color:#fff">${v}</b></div>`).join('');
-  const saveRows = saves.map((sv) => `<div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:6px 8px;margin-top:5px;border-radius:6px;background:${sv.slot === 1 ? 'rgba(255,207,74,.14)' : 'rgba(255,255,255,.05)'};border:1px solid ${sv.slot === 1 ? '#ffcf4a' : 'rgba(255,255,255,.1)'}"><b style="font-size:12px;color:#ffcf4a">SLOT ${sv.slot}</b><span style="font-size:11.5px;font-weight:700">${sv.empty ? '— Empty —' : sv.label}</span><span style="font-size:11px;color:#9fb0c8;font-weight:700">${sv.empty ? '' : `$${(sv.cash || 0).toLocaleString('en-US')} · ${sv.completed}/10`}</span></div>`).join('');
+    .map(([k, v]) => `<div style="display:flex;justify-content:space-between;align-items:center;font-size:13.5px;font-weight:800;height:23px;color:#dbe4f0"><span>${k}</span><b style="color:#fff;font-weight:900">${v}</b></div>`).join('');
+  const saveRows = saves.map((sv) => `<div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:6px 8px;margin-top:5px;border-radius:6px;background:${sv.slot === 1 ? 'rgba(255,207,74,.14)' : 'rgba(255,255,255,.05)'};border:1px solid ${sv.slot === 1 ? '#ffcf4a' : 'rgba(255,255,255,.1)'}"><b style="font-size:13px;color:#ffcf4a">SLOT ${sv.slot}</b><span style="font-size:12.5px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sv.empty ? '— Empty —' : sv.label}</span><span style="font-size:12px;color:#c3cfdf;font-weight:800;white-space:nowrap">${sv.empty ? '' : `$${(sv.cash || 0).toLocaleString('en-US')} · ${sv.completed}/10`}</span></div>`).join('');
   const ring = 2 * Math.PI * 34;
   const panel = (inner, extra = '') => `<div class="pn" style="padding:11px 13px;${extra}">${inner}</div>`;
-  const head = (t, c = '#9fb0c8') => `<div style="font-size:11px;font-weight:900;letter-spacing:.14em;color:${c};margin-bottom:4px">${t}</div>`;
+  const head = (t, c = '#9fb0c8') => `<div style="font-size:12.5px;font-weight:900;letter-spacing:.14em;color:${c};margin-bottom:4px">${t}</div>`;
   container.innerHTML = `<div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(14,10,34,.94),rgba(8,14,26,.96))"></div>
   <div style="position:absolute;inset:0;padding:16px 18px;display:grid;grid-template-rows:44px 1fr 26px;gap:10px">
     <div style="display:flex;align-items:center;gap:14px">
@@ -601,7 +601,7 @@ export function showWorldMap(container, data) {
 }
 
 /** Where each district's name sits on the world map, so neighbouring labels never collide. */
-const LABEL_Z = { playa: -70, mercado: 300, porto: -330, palmera: -230, solar: 60, coral: 190 };
+const LABEL_Z = { playa: -130, mercado: 300, porto: -330, palmera: -230, solar: 8, coral: 255 };
 
 function drawWorldMapCanvas(canvas, player, data) {
   const rect = canvas.getBoundingClientRect();
@@ -626,12 +626,28 @@ function drawWorldMapCanvas(canvas, player, data) {
     const [cx, cy] = toScreen((Math.max(d.x0, -10) + Math.min(d.x1, right)) / 2, LABEL_Z[d.id] ?? (d.z0 + d.z1) / 2);
     const sx = Math.max(50, Math.min(w - 50, cx));
     const sy = Math.max(16, Math.min(hgt - 30, cy));
-    ctx.font = `italic 900 15px ${NARROW}`;
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = 'rgba(10,14,22,.85)';
-    ctx.strokeText(d.name, sx, sy);
+    // A solid badge: dark plate, district-colour border and dot, bold white-on-dark name.
+    ctx.font = `900 13px ${FONT}`;
+    const tw = ctx.measureText(d.name).width;
+    const bw = tw + 34;
+    const bh = 24;
+    const bx = Math.max(4, Math.min(w - bw - 4, sx - bw / 2));
+    ctx.beginPath();
+    ctx.roundRect(bx, sy - bh / 2, bw, bh, 6);
+    ctx.fillStyle = 'rgba(10,14,22,.9)';
+    ctx.shadowColor = 'rgba(0,0,0,.45)';
+    ctx.shadowBlur = 6;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = d.color;
+    ctx.stroke();
     ctx.fillStyle = d.color;
-    ctx.fillText(d.name, sx, sy);
+    ctx.beginPath(); ctx.arc(bx + 12, sy, 4.5, 0, Math.PI * 2); ctx.fill();
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(d.name, bx + 22, sy + 0.5);
+    ctx.textAlign = 'center';
   }
   for (const ic of MAP_ICONS) {
     const [sx, sy] = toScreen(ic.x, ic.z);

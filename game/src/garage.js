@@ -8,7 +8,7 @@ import { buildSportsCar, glowSprite } from './vehicles.js';
 import { canvasTexture, makeNeonTexture } from './world.js';
 import { makePortraitSVG } from './hud.js';
 
-const NARROW = '"Nimbus Sans Narrow", "Noto Sans", sans-serif';
+const NARROW = "'Nimbus Sans Narrow', 'Noto Sans', sans-serif";
 
 function gridTexture() {
   const tex = canvasTexture(256, 256, (ctx) => {
@@ -135,8 +135,8 @@ export function buildGarageScene(career) {
   lift.position.set(-9, 2.5, -6);
   scene.add(lift);
   const camera = new THREE.PerspectiveCamera(38, 1.6, 0.1, 200);
-  camera.position.set(-1.2, 3.1, 11.2);
-  camera.lookAt(-1.2, 0.9, 0);
+  camera.position.set(-0.2, 2.5, 9.4);
+  camera.lookAt(0.75, 0.75, 0);
   return { scene, camera, table, car, career };
 }
 
@@ -197,8 +197,8 @@ export function showGarageUI(container, career, { selected = 'engine', message =
   const row = (item, owned) => {
     const sel = item.id === selected;
     return `<div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;margin-top:4px;background:${sel ? 'rgba(255,79,216,.18)' : 'rgba(255,255,255,.04)'};border:1px solid ${sel ? '#ff4fd8' : 'rgba(255,255,255,.08)'}">
-      <div><div style="font-size:13.5px;font-weight:900">${item.name}</div>${item.desc ? `<div style="font-size:11px;color:#9fb0c8;font-weight:700">${item.desc}</div>` : ''}</div>
-      ${owned ? '<span style="font-size:11px;font-weight:900;letter-spacing:.08em;background:#7dff9b;color:#0a0e16;padding:3px 8px;border-radius:4px">OWNED</span>' : `<span style="font:italic 900 17px ${NARROW};color:${career.cash >= item.price ? '#7dff9b' : '#ff5d73'}">$${item.price.toLocaleString('en-US')}</span>`}</div>`;
+      <div><div style="font-size:14.5px;font-weight:900;color:#fff">${item.name}</div>${item.desc ? `<div style="font-size:11px;color:#b4c2d6;font-weight:700">${item.desc}</div>` : ''}</div>
+      ${owned ? '<span style="font-size:13px;font-weight:900;letter-spacing:.08em;background:#7dff9b;color:#0a0e16;padding:3px 9px;border-radius:5px;white-space:nowrap;box-shadow:0 0 10px rgba(125,255,155,.45)">OWNED</span>' : `<span style="font:italic 900 23px ${NARROW};letter-spacing:.02em;color:${career.cash >= item.price ? '#8dffab' : '#ff6b80'};text-shadow:0 0 10px rgba(125,255,155,.35),0 2px 0 rgba(0,0,0,.6)">$${item.price.toLocaleString('en-US')}</span>`}</div>`;
   };
   const bar = (label, v, color) => `<div style="display:grid;grid-template-columns:104px 1fr 34px;align-items:center;gap:8px;height:22px;font-size:11.5px;font-weight:900;letter-spacing:.08em"><span>${label}</span><span style="height:9px;border-radius:5px;background:rgba(255,255,255,.12);overflow:hidden"><i style="display:block;height:100%;width:${v}%;background:${color};border-radius:5px"></i></span><span style="text-align:right">${Math.round(v)}</span></div>`;
   container.innerHTML = `
