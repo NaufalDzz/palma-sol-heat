@@ -847,7 +847,7 @@ export class ParticleSystem {
     mat.map = this.textures[kind === 'ember' ? 'spark' : kind];
     mat.blending = kind === 'smoke' ? THREE.NormalBlending : THREE.AdditiveBlending;
     mat.toneMapped = kind === 'smoke';
-    mat.color.set(kind === 'smoke' ? 0x2a2522 : 0xffffff);
+    mat.color.set(kind === 'smoke' ? 0x4a4440 : 0xffffff);
     mat.needsUpdate = true;
     s.visible = true;
     s.position.copy(pos);

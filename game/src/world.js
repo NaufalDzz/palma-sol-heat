@@ -999,7 +999,7 @@ function buildMarketBoardwalk(scene, rng, props, colliders) {
       const x = x0 + 9 + t * (x1 - x0 - 18);
       const sag = Math.sin(t * Math.PI) * 1.1;
       bulbParts.push(placed(tinted(new THREE.SphereGeometry(0.12, 6, 4), k % 2 ? 0xfff0b0 : 0xff9ad5), x, 5.6 - sag, z + 7));
-      if (k % 4 === 2) lanternParts.push(placed(tinted(new THREE.SphereGeometry(0.42, 10, 8), lanternColors[(k + si) % 4]), x, 5.0 - sag, z + 7));
+      if (k % 4 === 2) lanternParts.push(placed(tinted(new THREE.SphereGeometry(0.3, 10, 8), lanternColors[(k + si) % 4]), x, 5.0 - sag, z + 7));
     }
   }
   for (const c of crates) props.push(c);

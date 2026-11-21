@@ -259,8 +259,9 @@ function startGame() {
     else if (game.screen === 'map' && hit('KeyM', 'Escape')) play();
     else if (game.screen === 'map') {
       for (let s = 1; s <= 3; s += 1) {
-        if (hit(`Digit${s}`)) { saveGame(s, game.career); pause(); hud.toast(`Saved to slot ${s}`); }
-        if (hit(`F${s}`)) { const loaded = loadGame(s); if (loaded) { Object.assign(game.career, loaded); pause(); } }
+        if (!hit(`Digit${s}`)) continue;
+        if (down('ShiftLeft', 'ShiftRight')) { const loaded = loadGame(s); if (loaded) { Object.assign(game.career, loaded); pause(); hud.toast(`Loaded slot ${s}`); } }
+        else { saveGame(s, game.career); pause(); hud.toast(`Saved to slot ${s}`); }
       }
     } else if (game.screen === 'garage') {
       if (hit('Escape', 'KeyG')) { closeGarage(); return; }

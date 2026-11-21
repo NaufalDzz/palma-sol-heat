@@ -111,7 +111,7 @@ const CSS = `
 #prompt{position:absolute;left:50%;top:63%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:8px 16px 8px 8px;border-color:rgba(255,207,74,.7)}
 #prompt kbd{background:#ffcf4a;color:#0a0e16;font:900 16px ${FONT};border-radius:6px;padding:3px 10px}
 #prompt span{font-weight:900;font-size:15px;letter-spacing:.08em}
-#callout{position:absolute;right:16px;top:50%;padding:7px 12px;font-size:13px;font-weight:800;border-left:3px solid #7dff9b}
+#callout{position:absolute;right:16px;bottom:206px;padding:7px 12px;font-size:13px;font-weight:800;border-left:3px solid #7dff9b}
 #toast{position:absolute;left:50%;top:20%;transform:translateX(-50%);padding:10px 22px;font:italic 900 26px ${NARROW};letter-spacing:.08em;color:#ffcf4a;opacity:0;transition:opacity .3s}
 #vignette{position:fixed;inset:0;pointer-events:none;z-index:4;background:radial-gradient(ellipse at 50% 46%,rgba(0,0,0,0) 58%,rgba(10,6,20,.42) 100%)}
 .hide{display:none!important}
@@ -217,14 +217,6 @@ export function paintCityMap(ctx, x0, z0, scale, w, h, { districts = false, nigh
   const Z = (z) => (z - z0) * scale;
   ctx.fillStyle = night ? '#232838' : '#d9d3c7';
   ctx.fillRect(0, 0, w, h);
-  if (districts) {
-    for (const d of DISTRICTS) {
-      ctx.fillStyle = d.color;
-      ctx.globalAlpha = 0.28;
-      ctx.fillRect(X(Math.max(d.x0, WORLD.beachInnerX)), Z(d.z0), (d.x1 - Math.max(d.x0, WORLD.beachInnerX)) * scale, (d.z1 - d.z0) * scale);
-    }
-    ctx.globalAlpha = 1;
-  }
   // City blocks between roads.
   ctx.fillStyle = night ? '#3a4058' : '#b9b2a6';
   const xs = [WORLD.boulevardHalfWidth + 6, ...WORLD.avenueXs, WORLD.cityMaxX + 30];
@@ -237,6 +229,14 @@ export function paintCityMap(ctx, x0, z0, scale, w, h, { districts = false, nigh
       const bz1 = zs[k + 1] - WORLD.streetWidth / 2 - 3;
       ctx.fillRect(X(bx0), Z(bz0), (bx1 - bx0) * scale, (bz1 - bz0) * scale);
     }
+  }
+  if (districts) {
+    for (const d of DISTRICTS) {
+      ctx.fillStyle = d.color;
+      ctx.globalAlpha = 0.34;
+      ctx.fillRect(X(Math.max(d.x0, WORLD.beachInnerX)), Z(d.z0), (d.x1 - Math.max(d.x0, WORLD.beachInnerX)) * scale, (d.z1 - d.z0) * scale);
+    }
+    ctx.globalAlpha = 1;
   }
   // Beach and ocean.
   ctx.fillStyle = '#f0d39a';
@@ -600,6 +600,9 @@ export function showWorldMap(container, data) {
   drawWorldMapCanvas(canvas, player, data);
 }
 
+/** Where each district's name sits on the world map, so neighbouring labels never collide. */
+const LABEL_Z = { playa: -70, mercado: 300, porto: -330, palmera: -230, solar: 60, coral: 190 };
+
 function drawWorldMapCanvas(canvas, player, data) {
   const rect = canvas.getBoundingClientRect();
   const w = Math.max(200, Math.floor(rect.width));
@@ -608,30 +611,22 @@ function drawWorldMapCanvas(canvas, player, data) {
   canvas.height = hgt * 2;
   const ctx = canvas.getContext('2d');
   ctx.scale(2, 2);
-  // Map is drawn rotated so the coast runs left-right: world z → screen x, world x → screen y (ocean at the bottom).
-  ctx.save();
-  const span = WORLD.maxZ - WORLD.minZ + 40;
-  const depth = WORLD.cityMaxX + 30 - (WORLD.oceanEdgeX - 50);
-  const scale = Math.min(w / span, hgt / depth);
-  ctx.translate((w - span * scale) / 2, (hgt - depth * scale) / 2);
-  ctx.translate(0, depth * scale);
-  ctx.rotate(-Math.PI / 2);
-  ctx.translate(0, 0);
-  const off = document.createElement('canvas');
-  const x0 = WORLD.oceanEdgeX - 50;
-  const z0 = WORLD.minZ - 20;
-  off.width = Math.ceil(depth * scale);
-  off.height = Math.ceil(span * scale);
-  paintCityMap(off.getContext('2d'), x0, z0, scale, off.width, off.height, { districts: true });
-  ctx.drawImage(off, 0, 0);
-  ctx.restore();
-  const toScreen = (x, z) => [(w - span * scale) / 2 + (z - z0) * scale, (hgt - depth * scale) / 2 + depth * scale - (x - x0) * scale];
+  // North-up: the coast runs top to bottom with the ocean on the left. The scale fills the panel
+  // width with the city (right edge flush) and crops the far north and south ends of the coast.
+  const right = WORLD.cityMaxX + 34;
+  const scale = Math.min(w / (right - (WORLD.oceanEdgeX - 30)), (hgt * 1.75) / (WORLD.maxZ - WORLD.minZ));
+  const x0 = right - w / scale;
+  const z0 = (WORLD.minZ + WORLD.maxZ) / 2 - hgt / 2 / scale;
+  paintCityMap(ctx, x0, z0, scale, w, hgt, { districts: true });
+  const toScreen = (x, z) => [(x - x0) * scale, (z - z0) * scale];
   // District labels.
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   for (const d of DISTRICTS) {
-    const [sx, sy] = toScreen((Math.max(d.x0, -10) + d.x1) / 2, (d.z0 + d.z1) / 2);
-    ctx.font = `italic 900 13px ${NARROW}`;
+    const [cx, cy] = toScreen((Math.max(d.x0, -10) + Math.min(d.x1, right)) / 2, LABEL_Z[d.id] ?? (d.z0 + d.z1) / 2);
+    const sx = Math.max(50, Math.min(w - 50, cx));
+    const sy = Math.max(16, Math.min(hgt - 30, cy));
+    ctx.font = `italic 900 15px ${NARROW}`;
     ctx.lineWidth = 4;
     ctx.strokeStyle = 'rgba(10,14,22,.85)';
     ctx.strokeText(d.name, sx, sy);
@@ -652,7 +647,7 @@ function drawWorldMapCanvas(canvas, player, data) {
     const [px, py] = toScreen(player.x, player.z);
     ctx.save();
     ctx.translate(px, py);
-    ctx.rotate(-player.heading - Math.PI / 2);
+    ctx.rotate(-player.heading);
     ctx.fillStyle = '#fff';
     ctx.strokeStyle = '#ff3b5c';
     ctx.lineWidth = 2.5;

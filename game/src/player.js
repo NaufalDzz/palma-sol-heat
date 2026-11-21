@@ -104,20 +104,21 @@ export function buildHumanoid({ skin = 0xd9a47e, shirt = 0xffffff, pants = 0x2f3
       root.position.y = Math.abs(Math.cos(phase)) * 0.04;
     },
     sit() {
-      legL.rotation.x = -1.4;
-      legR.rotation.x = -1.4;
-      armL.rotation.x = -1.0;
-      armR.rotation.x = -1.0;
+      legL.rotation.x = 1.4;
+      legR.rotation.x = 1.4;
+      armL.rotation.x = 1.0;
+      armR.rotation.x = 1.0;
     },
     aim(twoHanded = true) {
       g.userData.aiming = true;
-      armR.rotation.set(-1.5, 0, 0.05);
-      if (twoHanded) armL.rotation.set(-1.35, 0, -0.5);
+      // The body faces -Z, so a positive pitch swings the arms forward; the support hand angles in.
+      armR.rotation.set(1.5, 0, -0.06);
+      if (twoHanded) armL.rotation.set(1.38, 0, 0.5);
     },
     crouch() {
       root.position.y = -0.35;
-      legL.rotation.x = -1.1;
-      legR.rotation.x = 0.3;
+      legL.rotation.x = 1.1;
+      legR.rotation.x = -0.3;
     },
   };
   return g;
@@ -152,7 +153,7 @@ export function buildWeaponModel(id) {
 
 const tracerGeo = new THREE.CylinderGeometry(0.035, 0.035, 1, 5, 1, true);
 tracerGeo.rotateX(Math.PI / 2);
-tracerGeo.translate(0, 0, -0.5);
+tracerGeo.translate(0, 0, 0.5); // Object3D.lookAt aims +Z at the impact point
 
 /** Spawn a glowing tracer round from a muzzle to an impact point; it fades over `life` seconds. */
 export function spawnTracer(scene, list, from, to, color = 0xffd27a, life = 0.09) {
@@ -268,7 +269,7 @@ export function selectWeapon(player, index) {
   if (player.weaponModel) player.weaponHolder.remove(player.weaponModel);
   player.weaponModel = w.id === 'fists' ? null : buildWeaponModel(w.id);
   if (player.weaponModel) {
-    player.weaponModel.rotation.x = Math.PI / 2;
+    player.weaponModel.rotation.x = -Math.PI / 2;
     player.weaponHolder.add(player.weaponModel);
   }
   return true;

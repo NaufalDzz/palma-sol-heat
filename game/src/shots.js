@@ -80,8 +80,8 @@ function stageChase(ctx, seed) {
   syncVehicleModel(v);
   for (const f of hero.userData.flames) { f.visible = true; f.scale.setScalar(1.05); }
   scene.add(hero);
-  roadReflection(scene, 3.35, -37.2, '#ff2340', 2.6, 2.4, 0.42);
-  roadReflection(scene, 3.4, -36.6, '#3fdcff', 1.8, 2.6, 0.5);
+  roadReflection(scene, 3.35, -37.6, '#ff2340', 2.2, 1.6, 0.16);
+  roadReflection(scene, 3.4, -36.9, '#3fdcff', 1.4, 1.8, 0.2);
 
   const player = createPlayer(scene, v.x, v.z, career);
   selectWeapon(player, 2);
@@ -91,8 +91,8 @@ function stageChase(ctx, seed) {
 
   // PSPD: two flanking cruisers with officers leaning out, more behind, a roadblock ahead.
   setWanted(dispatch, 5);
-  const left = spawnCruiser(dispatch, -1.6, -36.4, 0.07, 'FIRING', { officer: 1 });
-  const right = spawnCruiser(dispatch, 8.6, -47.5, -0.06, 'FLANKING', { officer: -1 });
+  const left = spawnCruiser(dispatch, -1.4, -51, 0.07, 'FIRING', { officer: 1 });
+  const right = spawnCruiser(dispatch, 8.4, -45.5, -0.06, 'FLANKING', { officer: -1 });
   for (const u of [left, right]) { u.vehicle.speed = 34; u.vehicle.wheelSpin = 2; syncVehicleModel(u.vehicle); }
   const rammer = spawnCruiser(dispatch, 2.2, -16, 0.02, 'RAMMING');
   const pursuit = spawnCruiser(dispatch, -3.6, -6, 0.0, 'PURSUIT');
@@ -105,14 +105,17 @@ function stageChase(ctx, seed) {
   pursuit.callsign = 'GULL-17';
   dispatch.units.find((u) => u.tactic === 'ROADBLOCK').callsign = 'HAMMER-22';
   const heli = spawnHelicopter(dispatch, -6, -92);
-  heli.model.position.set(-7, 25, -95);
+  heli.model.position.set(-9, 22, -84);
   heli.model.rotation.set(0.12, 0.35, -0.08);
   updateHelicopter(heli.model, t);
+  heli.model.userData.cone.material.uniforms.strength.value = 1.15;
+  heli.model.userData.spot.intensity = 160;
   aimSearchlight(heli.model, new THREE.Vector3(v.x - 0.2, 0, v.z + 0.6), scene);
+  heli.model.userData.pool.material.opacity = 0.22;
   for (const u of dispatch.units) {
     updateLightbar(u.vehicle.model, t);
     u.distance = Math.hypot(u.vehicle.x - v.x, u.vehicle.z - v.z);
-    roadReflection(scene, u.vehicle.x, u.vehicle.z, (u.vehicle.model.userData.phase || 0) > 0.5 ? '#2a6bff' : '#ff2a4a', 5, 6, 0.22);
+    roadReflection(scene, u.vehicle.x, u.vehicle.z, (u.vehicle.model.userData.phase || 0) > 0.5 ? '#2a6bff' : '#ff2a4a', 4.4, 5.4, 0.14);
   }
   dispatch.inSight = true;
   dispatch.heli.distance = 52;
@@ -129,8 +132,8 @@ function stageChase(ctx, seed) {
   spawnTracer(scene, [], muzzle2, new THREE.Vector3(v.x + 0.4, 1.0, v.z + 1.5), 0xffd27a, 99);
 
   // A burning wreck mid-distance, off to the oncoming side; smoke drifting inland.
-  buildBurningWreck(scene, particles, -6.4, -104, 0.9, true);
-  particles.explode(new THREE.Vector3(-6.4, 1, -104), 0.5);
+  buildBurningWreck(scene, particles, -13.5, -84, 0.9, true);
+  particles.explode(new THREE.Vector3(-13.5, 1, -84), 0.5);
   settleParticles(particles, 2.6);
 
   // Civilian traffic and a scooter on the right.
@@ -160,9 +163,9 @@ function stageChase(ctx, seed) {
 
   // Camera: low, tight 3/4 rear-quarter.
   const cam = ctx.camera;
-  cam.fov = 54;
-  cam.position.set(v.x + 2.35, 1.55, v.z + 6.9);
-  cam.lookAt(v.x - 0.6, 1.55, v.z - 16);
+  cam.fov = 56;
+  cam.position.set(v.x + 2.7, 1.62, v.z + 8.3);
+  cam.lookAt(v.x - 2.0, 2.0, v.z - 20);
   cam.updateProjectionMatrix();
 
   startMission(game.campaign, 9);
@@ -203,7 +206,7 @@ function stageShootout(ctx, seed) {
   scene.environment = createEnvironmentMap(ctx.renderer, 'night');
   const deckY = 0.6;
   const px = -42.4;
-  const pz = 262;
+  const pz = 252;
 
   const player = createPlayer(scene, px, pz, career);
   selectWeapon(player, 2);
@@ -218,7 +221,7 @@ function stageShootout(ctx, seed) {
 
   // The Palma Cab parked at the stall row, ready to steal.
   const cab = buildSedan({ color: VEHICLES.cab.color, livery: 'cab' });
-  const cabState = createVehicleState(cab, 'cab', -36.2, 257.5, 0.5);
+  const cabState = createVehicleState(cab, 'cab', -35.6, 245.5, 0.55);
   syncVehicleModel(cabState);
   cab.position.y = deckY;
   scene.add(cab);
@@ -229,7 +232,7 @@ function stageShootout(ctx, seed) {
     { x: -38.2, z: 232, shirt: 0xd42a3a, pants: 0x1b1b22, crouch: false, fire: true },
     { x: -44.6, z: 224, shirt: 0x1d3b7a, pants: 0x0f1626, cap: 0x0f1626, crouch: false, fire: true },
     { x: -50.2, z: 220, shirt: 0x1d3b7a, pants: 0x0f1626, cap: 0x0f1626, crouch: true, fire: false },
-    { x: -35.6, z: 244, shirt: 0x2a2a33, pants: 0x3a2a1a, crouch: true, fire: false, down: true },
+    { x: -40.5, z: 241, shirt: 0x2a2a33, pants: 0x3a2a1a, crouch: true, fire: false, down: true },
   ];
   const crates = new THREE.MeshStandardMaterial({ color: 0x8a6a48, roughness: 0.8 });
   const targets = [];
@@ -244,7 +247,7 @@ function stageShootout(ctx, seed) {
       m.userData.aim(true);
       if (e.crouch) m.userData.crouch();
       const gun = buildWeaponModel(e.cap ? 'nine' : 'viper');
-      gun.rotation.x = Math.PI / 2;
+      gun.rotation.x = -Math.PI / 2;
       gun.position.y = -0.62;
       m.userData.rightArm.add(gun);
     }
@@ -299,7 +302,7 @@ function stageShootout(ctx, seed) {
   dispatch.inSight = true;
 
   // Night lights: lanterns, neon spill and the fire.
-  const lights = [[-44, 5, 250, 0xff4fd8, 30], [-40, 5, 236, 0x46e0ff, 30], [-44.5, 3, 209, 0xff7a2a, 60], [-35, 4, 262, 0xffcf4a, 18], [-52, 4, 240, 0x46e0ff, 22], [-41, 4, 268, 0xff4fd8, 14]];
+  const lights = [[-44, 5, 250, 0xff4fd8, 30], [-40, 5, 236, 0x46e0ff, 30], [-44.5, 3, 209, 0xff7a2a, 60], [-35, 4, 248, 0xffcf4a, 18], [-52, 4, 240, 0x46e0ff, 22], [-41, 4, 256, 0xff4fd8, 14]];
   lights.forEach(([x, y, z, c, i], k) => { const l = world.pointPool[k]; l.position.set(x, y, z); l.color.set(c); l.intensity = i; l.distance = 34; });
   world.setFocus(px, pz - 20);
   world.update(3, 0);
@@ -334,7 +337,7 @@ function stageShootout(ctx, seed) {
   ctx.hud.update(hud);
   ctx.hud.drawMinimap({ x: px, z: pz, heading: player.heading, t: 0.1, cones: true, objective: { x: -20, z: 160 },
     police: dispatch.units.map((u) => ({ x: u.vehicle.x, z: u.vehicle.z, heading: u.vehicle.heading })).concat(enemies.filter((e) => !e.down).map((e) => ({ x: e.x, z: e.z, heading: 0 }))),
-    icons: [{ x: -20, z: 160, label: '!', color: '#ffcf4a' }, { x: -36, z: 257, label: 'C', color: '#ffc23a' }] });
+    icons: [{ x: -20, z: 160, label: '!', color: '#ffcf4a' }, { x: -35.6, z: 245.5, label: 'C', color: '#ffc23a' }] });
   return { scene, camera: cam };
 }
 
