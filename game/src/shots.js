@@ -132,12 +132,21 @@ function stageChase(ctx, seed) {
   spawnTracer(scene, [], muzzle2, new THREE.Vector3(v.x + 0.4, 1.0, v.z + 1.5), 0xffd27a, 99);
 
   // A burning wreck mid-distance, off to the oncoming side; smoke drifting inland.
-  buildBurningWreck(scene, particles, -13.5, -84, 0.9, true);
-  particles.explode(new THREE.Vector3(-13.5, 1, -84), 0.5);
+  buildBurningWreck(scene, particles, -14.6, -70, 0.9, true);
+  particles.explode(new THREE.Vector3(-14.6, 1, -70), 0.5);
+  particles.addFire(new THREE.Vector3(-14.3, 1.1, -70.6), 1.5);
+  const fireGlow = glowSprite('#ff8a2a', 6, 0.9);
+  fireGlow.position.set(-14.6, 1.4, -70);
+  scene.add(fireGlow);
+  const fireLight = world.pointPool[0];
+  fireLight.position.set(-14.6, 2.5, -70);
+  fireLight.color.set(0xff7a2a);
+  fireLight.intensity = 60;
+  fireLight.distance = 26;
   settleParticles(particles, 2.6);
 
   // Civilian traffic and a scooter on the right.
-  const civ = [[-3.2, -70, Math.PI, 0xf7b7c8, null], [-8.4, -126, Math.PI, 0x58d6c9, null], [-3.0, -176, Math.PI, 0xffc23a, 'cab'], [8.6, -88, 0, 0xffffff, null], [-8.6, -60, Math.PI, 0x9bd2ff, null], [2.8, -230, 0, 0xb58cff, null]];
+  const civ = [[-3.2, -70, Math.PI, 0xf7b7c8, null], [-8.4, -126, Math.PI, 0x58d6c9, null], [-3.0, -176, Math.PI, 0xffc23a, 'cab'], [8.6, -88, 0, 0xffffff, null], [-8.4, -116, Math.PI, 0x9bd2ff, null], [2.8, -230, 0, 0xb58cff, null]];
   for (const [x, z, h, color, livery] of civ) {
     const car = buildSedan({ color, livery });
     const s = createVehicleState(car, 'coupe', x, z, h);
@@ -164,8 +173,8 @@ function stageChase(ctx, seed) {
   // Camera: low, tight 3/4 rear-quarter.
   const cam = ctx.camera;
   cam.fov = 56;
-  cam.position.set(v.x + 2.7, 1.62, v.z + 8.3);
-  cam.lookAt(v.x - 2.0, 2.0, v.z - 20);
+  cam.position.set(v.x + 2.6, 2.05, v.z + 8.4);
+  cam.lookAt(v.x - 2.4, 1.9, v.z - 20);
   cam.updateProjectionMatrix();
 
   startMission(game.campaign, 9);

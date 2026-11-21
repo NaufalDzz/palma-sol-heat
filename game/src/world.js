@@ -295,7 +295,7 @@ export function makeNeonTexture(text, color, { w = 512, h = 128, font = 'bold 76
 // Sky and ocean shaders
 
 const SKY_PRESETS = {
-  golden: { zenith: 0x3c4c9c, mid: 0xf28c7c, horizon: 0xffc76a, sun: 0xfff0c0, sunDir: [-0.62, 0.11, -0.78], stars: 0, clouds: 0.85, cloudTint: 0xffa48a },
+  golden: { zenith: 0x3c4c9c, mid: 0xf28c7c, horizon: 0xffc76a, sun: 0xfff0c0, sunDir: [-0.86, 0.17, -0.3], stars: 0, clouds: 0.85, cloudTint: 0xffa48a },
   night: { zenith: 0x060820, mid: 0x1c1250, horizon: 0x5a1f6e, sun: 0xbfd4ff, sunDir: [0.3, 0.35, -0.9], stars: 1, clouds: 0.35, cloudTint: 0x6a2f8a },
 };
 

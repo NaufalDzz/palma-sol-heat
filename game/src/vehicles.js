@@ -845,9 +845,10 @@ export class ParticleSystem {
     }
     const mat = s.material;
     mat.map = this.textures[kind === 'ember' ? 'spark' : kind];
-    mat.blending = kind === 'smoke' ? THREE.NormalBlending : THREE.AdditiveBlending;
+    // Fire and smoke blend normally so flames stay saturated against a bright sunset sky.
+    mat.blending = kind === 'smoke' || kind === 'fire' ? THREE.NormalBlending : THREE.AdditiveBlending;
     mat.toneMapped = kind === 'smoke';
-    mat.color.set(kind === 'smoke' ? 0x4a4440 : 0xffffff);
+    mat.color.set(kind === 'smoke' ? 0x3a3330 : 0xffffff);
     mat.needsUpdate = true;
     s.visible = true;
     s.position.copy(pos);
